@@ -1016,6 +1016,10 @@
             <h3>🧠 Spawn Brainrot</h3>
             <div class="brainrot-list">
                 <div class="brainrot-item common">
+                    <span>Noobini Pizzanini ($100, +$5/sec)</span>
+                    <button class="admin-btn" onclick="adminSpawnBrainrot('NOOBINI_PIZZANINI')">SPAWN</button>
+                </div>
+                <div class="brainrot-item common">
                     <span>Common ($100, +$5/sec)</span>
                     <button class="admin-btn" onclick="adminSpawnBrainrot('COMMON')">SPAWN</button>
                 </div>
@@ -1169,7 +1173,7 @@
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">🧠 Brainrots</div>
-                        <div class="stat-value" id="brainrotCount">0</div>
+                        <div class="stat-value" id="brainrotCount">0/16</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">💵 Income/sec</div>
@@ -1217,6 +1221,27 @@
         let leaderboardOffsetX = 0;
         let leaderboardOffsetY = 0;
 
+        // ==================== GAME CONFIGURATION ====================
+        const CONFIG = {
+            CANVAS_WIDTH: 1600,
+            CANVAS_HEIGHT: 900,
+            PLAYER_SPEED: 3,
+            PLAYER_SIZE: 40,
+            BRAINROT_SIZE: 35,
+            BASE_SIZE: 150,
+            CONVEYOR_SPAWN_INTERVAL: 1000, // CHANGED: 1 brainrot per second
+            BRAINROT_SPEED: 1.5,
+            BRAINROT_TRAVEL_SPEED: 4, // NEW: Speed when traveling to base
+            STEAL_DURATION: 2000,
+            STEAL_COOLDOWN: 10000,
+            LOCK_DURATION: 30000,
+            LOCK_COOLDOWN: 45000,
+            REBIRTH_LOCK_BONUS: 10000,
+            INCOME_INTERVAL: 1000,
+            AI_THINK_INTERVAL: 2000,
+            MAX_BRAINROTS: 16,
+        };
+
         // ==================== LEADERBOARD DRAGGING ====================
         function initLeaderboardDragging() {
             const leaderboard = document.getElementById('playerLeaderboard');
@@ -1237,7 +1262,6 @@
                     const x = e.clientX - leaderboardOffsetX;
                     const y = e.clientY - leaderboardOffsetY;
                     
-                    // Keep within screen bounds
                     const maxX = window.innerWidth - leaderboard.offsetWidth;
                     const maxY = window.innerHeight - leaderboard.offsetHeight;
                     
@@ -1254,7 +1278,6 @@
             });
         }
 
-        // Initialize on page load
         window.addEventListener('load', () => {
             initLeaderboardDragging();
         });
@@ -1575,25 +1598,6 @@
             document.getElementById('mainMenu').style.display = 'flex';
         }
 
-        // ==================== GAME CONFIGURATION ====================
-        const CONFIG = {
-            CANVAS_WIDTH: 1600,
-            CANVAS_HEIGHT: 900,
-            PLAYER_SPEED: 3,
-            PLAYER_SIZE: 40,
-            BRAINROT_SIZE: 35,
-            BASE_SIZE: 150,
-            CONVEYOR_SPAWN_INTERVAL: 2000,
-            BRAINROT_SPEED: 1.5,
-            STEAL_DURATION: 2000,
-            STEAL_COOLDOWN: 10000,
-            LOCK_DURATION: 30000,
-            LOCK_COOLDOWN: 45000,
-            REBIRTH_LOCK_BONUS: 10000,
-            INCOME_INTERVAL: 1000,
-            AI_THINK_INTERVAL: 2000,
-        };
-
         // ==================== ANIMATED COLOR FUNCTIONS ====================
         function getRainbowColor() {
             const time = Date.now() / 500;
@@ -1618,15 +1622,27 @@
             return `rgb(${gold}, ${dark}, 0)`;
         }
 
+        // ==================== RARITIES WITH CHARACTERS ====================
         const RARITIES = {
+            NOOBINI_PIZZANINI: { 
+                name: 'Noobini Pizzanini', 
+                color: '#00ff00', 
+                glowColor: '#66ff66',
+                value: 100, 
+                income: 5, 
+                chance: 0.27, // Half of common's chance
+                animated: false,
+                character: '🟨🍕' // Yellow square (noob) + pizza
+            },
             COMMON: { 
                 name: 'Common', 
                 color: '#00ff00', 
                 glowColor: '#66ff66',
                 value: 100, 
                 income: 5, 
-                chance: 0.55,
-                animated: false
+                chance: 0.28, // Reduced to make room for Noobini
+                animated: false,
+                character: '🧠'
             },
             RARE: { 
                 name: 'Rare', 
@@ -1635,7 +1651,8 @@
                 value: 300, 
                 income: 10, 
                 chance: 0.25,
-                animated: false
+                animated: false,
+                character: '🧠'
             },
             EPIC: { 
                 name: 'Epic', 
@@ -1644,7 +1661,8 @@
                 value: 600, 
                 income: 20, 
                 chance: 0.15,
-                animated: false
+                animated: false,
+                character: '🧠'
             },
             LEGENDARY: { 
                 name: 'Legendary', 
@@ -1653,7 +1671,8 @@
                 value: 1500, 
                 income: 50, 
                 chance: 0.03,
-                animated: false
+                animated: false,
+                character: '🧠'
             },
             MYTHIC: { 
                 name: 'Mythic', 
@@ -1662,7 +1681,8 @@
                 value: 3000, 
                 income: 100, 
                 chance: 0.018,
-                animated: false
+                animated: false,
+                character: '🧠'
             },
             BRAINROT_GOD: { 
                 name: 'Brainrot God', 
@@ -1672,7 +1692,8 @@
                 income: 500, 
                 chance: 0.0015,
                 animated: true,
-                getColor: getRainbowColor
+                getColor: getRainbowColor,
+                character: '🧠'
             },
             SECRET: { 
                 name: 'Secret', 
@@ -1682,7 +1703,8 @@
                 income: 2500, 
                 chance: 0.0005,
                 animated: true,
-                getColor: getSecretColor
+                getColor: getSecretColor,
+                character: '🧠'
             },
             OG: { 
                 name: 'OG', 
@@ -1692,7 +1714,8 @@
                 income: 50000, 
                 chance: 0.000003,
                 animated: true,
-                getColor: getOGColor
+                getColor: getOGColor,
+                character: '🧠'
             }
         };
 
@@ -1952,10 +1975,31 @@
                 this.angle = 0;
                 this.pulsePhase = Math.random() * Math.PI * 2;
                 this.speed = CONFIG.BRAINROT_SPEED;
+                
+                // NEW: Travel animation properties
+                this.traveling = false;
+                this.travelTarget = null;
+                this.travelSpeed = CONFIG.BRAINROT_TRAVEL_SPEED;
             }
 
             update(deltaTime) {
-                if (this.onConveyor) {
+                // NEW: Handle travel animation
+                if (this.traveling && this.travelTarget) {
+                    const dx = this.travelTarget.x - this.x;
+                    const dy = this.travelTarget.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 5) {
+                        // Reached destination
+                        this.traveling = false;
+                        this.onConveyor = false;
+                        return true;
+                    }
+                    
+                    // Move towards target
+                    this.x += (dx / dist) * this.travelSpeed;
+                    this.y += (dy / dist) * this.travelSpeed;
+                } else if (this.onConveyor) {
                     this.x += this.speed;
                     if (this.x > CONFIG.CANVAS_WIDTH + 50) {
                         return false;
@@ -1966,6 +2010,12 @@
                 this.pulsePhase += 0.05;
                 
                 return true;
+            }
+
+            // NEW: Start traveling to base
+            travelToBase(base) {
+                this.traveling = true;
+                this.travelTarget = { x: base.x, y: base.y };
             }
 
             draw(ctx) {
@@ -1988,15 +2038,16 @@
                 ctx.arc(0, 0, this.size * pulse, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // NEW: Draw character instead of just brain
                 ctx.font = `${this.size * 1.2}px Arial`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText('🧠', 0, 0);
+                ctx.fillText(this.rarity.character, 0, 0);
                 
                 ctx.restore();
                 
-                if (this.onConveyor) {
+                if (this.onConveyor || this.traveling) {
                     ctx.font = 'bold 12px Arial';
                     ctx.textAlign = 'center';
                     
@@ -2147,21 +2198,23 @@
             }
 
             drawBrainrots(ctx) {
-                const cols = 3;
-                const spacing = (this.size - 30) / cols;
+                const cols = 4;
+                const padding = 20;
+                const spacing = (this.size - padding * 2) / (cols - 1);
                 
                 this.brainrots.forEach((brainrot, i) => {
                     const col = i % cols;
                     const row = Math.floor(i / cols);
                     
-                    brainrot.x = this.x - this.size / 2 + 30 + col * spacing;
-                    brainrot.y = this.y - this.size / 2 + 30 + row * spacing;
+                    brainrot.x = this.x - this.size / 2 + padding + col * spacing;
+                    brainrot.y = this.y - this.size / 2 + padding + row * spacing;
                     brainrot.draw(ctx);
                 });
             }
 
             addBrainrot(brainrot) {
                 brainrot.onConveyor = false;
+                brainrot.traveling = false;
                 brainrot.owner = this;
                 this.brainrots.push(brainrot);
             }
@@ -2348,8 +2401,8 @@
             think(game) {
                 const rand = Math.random();
                 
-                if (rand < 0.5 && game.conveyorBrainrots.length > 0) {
-                    const affordable = game.conveyorBrainrots.filter(b => b.value <= this.money);
+                if (rand < 0.5 && game.conveyorBrainrots.length > 0 && this.base.brainrots.length < CONFIG.MAX_BRAINROTS) {
+                    const affordable = game.conveyorBrainrots.filter(b => b.value <= this.money && !b.traveling);
                     if (affordable.length > 0) {
                         const target = affordable[Math.floor(Math.random() * affordable.length)];
                         this.target = { x: target.x, y: target.y };
@@ -2371,13 +2424,14 @@
 
             attemptBuy(game) {
                 const nearBrainrot = game.conveyorBrainrots.find(b => 
-                    distance(this.x, this.y, b.x, b.y) < 60
+                    distance(this.x, this.y, b.x, b.y) < 60 && !b.traveling
                 );
                 
-                if (nearBrainrot && nearBrainrot.value <= this.money) {
+                if (nearBrainrot && nearBrainrot.value <= this.money && this.base.brainrots.length < CONFIG.MAX_BRAINROTS) {
                     this.money -= nearBrainrot.value;
-                    this.base.addBrainrot(nearBrainrot);
-                    game.conveyorBrainrots = game.conveyorBrainrots.filter(b => b !== nearBrainrot);
+                    // NEW: Start travel animation
+                    nearBrainrot.travelToBase(this.base);
+                    game.travelingBrainrots.push({ brainrot: nearBrainrot, target: this.base });
                 }
             }
 
@@ -2387,7 +2441,7 @@
                     return;
                 }
                 
-                if (Math.random() < 0.3) {
+                if (Math.random() < 0.3 && this.base.brainrots.length < CONFIG.MAX_BRAINROTS) {
                     const stolenBrainrot = this.stealingTarget.brainrots[
                         Math.floor(Math.random() * this.stealingTarget.brainrots.length)
                     ];
@@ -2468,7 +2522,8 @@
                 this.playerBase.owner = 'player';
                 
                 if (mode === 'online' && this.savedBrainrots) {
-                    this.savedBrainrots.forEach(brData => {
+                    const brainrotsToLoad = this.savedBrainrots.slice(0, CONFIG.MAX_BRAINROTS);
+                    brainrotsToLoad.forEach(brData => {
                         const rarityKey = brData.rarity.toUpperCase().replace(/ /g, '_');
                         const rarity = RARITIES[rarityKey];
                         if (rarity) {
@@ -2493,6 +2548,7 @@
                 
                 this.player = new Player(this.playerBase.x, this.playerBase.y - 100);
                 this.conveyorBrainrots = [];
+                this.travelingBrainrots = []; // NEW: Track traveling brainrots
                 
                 this.isStealingInProgress = false;
                 this.stealProgress = 0;
@@ -2633,8 +2689,9 @@
             }
 
             handleEKey() {
+                // NEW: Check traveling brainrots too
                 const nearConveyorBrainrot = this.conveyorBrainrots.find(b => 
-                    b.isNear(this.player.x, this.player.y)
+                    b.isNear(this.player.x, this.player.y) && !b.traveling
                 );
                 
                 if (nearConveyorBrainrot) {
@@ -2653,11 +2710,19 @@
             }
 
             buyBrainrot(brainrot) {
+                if (this.playerBase.brainrots.length >= CONFIG.MAX_BRAINROTS) {
+                    this.showNotification(`⚠️ Base full! (Max ${CONFIG.MAX_BRAINROTS} brainrots)`, 'warning');
+                    return;
+                }
+                
                 if (this.money >= brainrot.value) {
                     this.money -= brainrot.value;
-                    this.playerBase.addBrainrot(brainrot);
-                    this.conveyorBrainrots = this.conveyorBrainrots.filter(b => b !== brainrot);
-                    this.showNotification(`Bought ${brainrot.rarity.name} Brainrot! +$${brainrot.income}/sec`, 'success');
+                    
+                    // NEW: Start travel animation instead of instant add
+                    brainrot.travelToBase(this.playerBase);
+                    this.travelingBrainrots.push({ brainrot: brainrot, target: this.playerBase });
+                    
+                    this.showNotification(`Bought ${brainrot.rarity.name}! Traveling to base...`, 'success');
                     this.updateUI();
                     
                     if (this.mode === 'online') {
@@ -2681,6 +2746,11 @@
                 
                 if (targetBase.brainrots.length === 0) {
                     this.showNotification('No Brainrots to steal!', 'warning');
+                    return;
+                }
+                
+                if (this.playerBase.brainrots.length >= CONFIG.MAX_BRAINROTS) {
+                    this.showNotification(`⚠️ Your base is full! (Max ${CONFIG.MAX_BRAINROTS})`, 'warning');
                     return;
                 }
                 
@@ -2770,6 +2840,7 @@
                 this.playerBase.brainrots = [];
                 this.aiPlayers.forEach(ai => ai.base.brainrots = []);
                 this.conveyorBrainrots = [];
+                this.travelingBrainrots = []; // NEW: Clear traveling brainrots
                 this.rebirthMultiplier *= 2;
                 
                 this.playerBase.lock(CONFIG.REBIRTH_LOCK_BONUS);
@@ -2805,7 +2876,7 @@
 
             updateUI() {
                 document.getElementById('moneyDisplay').textContent = '$' + Math.floor(this.money);
-                document.getElementById('brainrotCount').textContent = this.playerBase.brainrots.length;
+                document.getElementById('brainrotCount').textContent = `${this.playerBase.brainrots.length}/${CONFIG.MAX_BRAINROTS}`;
                 document.getElementById('incomeDisplay').textContent = 
                     '$' + (this.playerBase.getTotalIncome() * this.rebirthMultiplier).toFixed(1);
                 document.getElementById('rebirthDisplay').textContent = 'x' + this.rebirthMultiplier;
@@ -2844,6 +2915,24 @@
                 this.bases.forEach(base => base.update(deltaTime));
                 
                 this.conveyorBrainrots = this.conveyorBrainrots.filter(b => b.update(deltaTime));
+                
+                // NEW: Update traveling brainrots
+                this.travelingBrainrots = this.travelingBrainrots.filter(({ brainrot, target }) => {
+                    const stillTraveling = brainrot.update(deltaTime);
+                    if (!brainrot.traveling) {
+                        // Arrived at destination
+                        target.addBrainrot(brainrot);
+                        this.conveyorBrainrots = this.conveyorBrainrots.filter(b => b !== brainrot);
+                        if (target === this.playerBase) {
+                            this.showNotification(`${brainrot.rarity.name} arrived! +$${brainrot.income}/sec`, 'success');
+                            if (this.mode === 'online') {
+                                this.saveProgress();
+                            }
+                        }
+                        return false;
+                    }
+                    return stillTraveling;
+                });
                 
                 if (currentTime - this.lastConveyorSpawn > CONFIG.CONVEYOR_SPAWN_INTERVAL) {
                     this.spawnConveyorBrainrot();
