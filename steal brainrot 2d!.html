@@ -1,0 +1,2454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steal a Brainrot - HTML Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', 'Arial Bold', sans-serif;
+            background: linear-gradient(135deg, #1a0033, #330066, #0d0d2b);
+            overflow: hidden;
+            color: white;
+        }
+
+        /* Login Screen */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        #loginScreen h1 {
+            font-size: 5em;
+            color: #ff00ff;
+            text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff;
+            margin-bottom: 50px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .auth-container {
+            background: rgba(255, 0, 255, 0.1);
+            border: 3px solid #ff00ff;
+            border-radius: 20px;
+            padding: 40px 60px;
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.5);
+            min-width: 400px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #666;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 1.2em;
+        }
+
+        .auth-tab.active {
+            background: rgba(255, 0, 255, 0.3);
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .auth-form input {
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            box-shadow: 0 0 15px #ff00ff;
+        }
+
+        .auth-btn {
+            padding: 15px;
+            font-size: 1.3em;
+            background: linear-gradient(145deg, #ff00ff, #ff0080);
+            border: 3px solid #ff00ff;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 0 30px #ff00ff;
+            transition: all 0.3s;
+        }
+
+        .auth-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px #ff00ff;
+        }
+
+        .auth-message {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .auth-message.error {
+            background: rgba(255, 0, 0, 0.3);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+        }
+
+        .auth-message.success {
+            background: rgba(0, 255, 0, 0.3);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+
+        /* User Info Display */
+        .user-info-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            pointer-events: all;
+        }
+
+        .user-greeting {
+            font-size: 1.2em;
+            color: #ffff00;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ff0000, #cc0000);
+            border: 2px solid #ff0000;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ff0000;
+        }
+
+        /* Leave Server Button */
+        .leave-server-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(145deg, #ff6600, #cc5200);
+            border: 3px solid #ff6600;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 0 20px #ff6600;
+            z-index: 150;
+            pointer-events: all;
+            transition: all 0.3s;
+        }
+
+        .leave-server-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #ff6600;
+        }
+
+        /* Player Leaderboard */
+        .player-leaderboard {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 250px;
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 150;
+            pointer-events: all;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .leaderboard-title {
+            font-size: 1.3em;
+            text-align: center;
+            color: #00ffff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .player-entry {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-entry.you {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .player-money {
+            color: #ffff00;
+            font-size: 0.9em;
+        }
+
+        /* Main Menu */
+        #mainMenu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #mainMenu h1 {
+            font-size: 5em;
+            color: #ff00ff;
+            text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff;
+            margin-bottom: 50px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .menu-buttons {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .menu-btn {
+            padding: 25px 60px;
+            font-size: 2em;
+            background: linear-gradient(145deg, #ff00ff, #ff0080);
+            border: 4px solid #ff00ff;
+            color: white;
+            cursor: pointer;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 0 40px #ff00ff;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 60px #ff00ff;
+        }
+
+        .menu-btn.secondary {
+            background: linear-gradient(145deg, #00ffff, #0099cc);
+            border-color: #00ffff;
+            box-shadow: 0 0 40px #00ffff;
+        }
+
+        .menu-btn.secondary:hover {
+            box-shadow: 0 0 60px #00ffff;
+        }
+
+        /* Offline Mode Selection */
+        #offlineModeScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            padding: 50px;
+        }
+
+        .screen-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .screen-header h2 {
+            font-size: 3em;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff;
+        }
+
+        .bot-selection {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .bot-option {
+            background: rgba(255, 0, 255, 0.2);
+            border: 3px solid #ff00ff;
+            border-radius: 15px;
+            padding: 30px 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bot-option:hover {
+            background: rgba(255, 0, 255, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #ff00ff;
+        }
+
+        .bot-option h3 {
+            font-size: 2em;
+            color: #ffff00;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Online Mode Screen */
+        #onlineModeScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+        }
+
+        .online-container {
+            display: flex;
+            height: calc(100% - 150px);
+            margin-top: 100px;
+            padding: 0 30px;
+            gap: 30px;
+        }
+
+        .server-list-panel {
+            flex: 1;
+            background: rgba(255, 0, 255, 0.1);
+            border: 3px solid #ff00ff;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .server-creator-panel {
+            flex: 1;
+            background: rgba(0, 255, 255, 0.1);
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .server-item {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .server-item:hover {
+            background: rgba(255, 0, 255, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        .server-info h3 {
+            color: #ffff00;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .server-info p {
+            color: #aaaaaa;
+            font-size: 0.9em;
+        }
+
+        .server-lock {
+            font-size: 2em;
+        }
+
+        .no-servers {
+            text-align: center;
+            color: #888888;
+            font-size: 1.3em;
+            margin-top: 50px;
+            line-height: 1.6;
+        }
+
+        .no-servers span {
+            color: #00ffff;
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* Server Creator Form */
+        .creator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group label {
+            color: #00ffff;
+            font-size: 1.2em;
+        }
+
+        .form-group input {
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 15px #00ffff;
+        }
+
+        .privacy-toggle {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        .privacy-option {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #666;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .privacy-option.selected {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        .launch-btn {
+            padding: 20px;
+            font-size: 1.8em;
+            background: linear-gradient(145deg, #00ff00, #00cc00);
+            border: 4px solid #00ff00;
+            color: #000;
+            cursor: pointer;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 0 30px #00ff00;
+            transition: all 0.3s;
+        }
+
+        .launch-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px #00ff00;
+        }
+
+        .launch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Password Modal */
+        #passwordModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 4px solid #ff00ff;
+            border-radius: 20px;
+            padding: 40px;
+            z-index: 3000;
+            box-shadow: 0 0 50px #ff00ff;
+        }
+
+        #passwordModal h3 {
+            color: #ff00ff;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #passwordModal input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(145deg, #00ff00, #00cc00);
+            border-color: #00ff00;
+            color: #000;
+        }
+
+        .modal-btn.cancel {
+            background: linear-gradient(145deg, #ff0000, #cc0000);
+            border-color: #ff0000;
+            color: white;
+        }
+
+        .error-message {
+            color: #ff0000;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Game Container */
+        #gameContainer {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #1a0033;
+            image-rendering: pixelated;
+        }
+
+        /* UI Overlay */
+        #uiOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Top Bar */
+        #topBar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-bottom: 3px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: rgba(255, 0, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #ff00ff;
+            margin: 0 10px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #ff99ff;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+        }
+
+        /* Control Hints */
+        #controlHints {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        #controlHints div {
+            margin: 5px 0;
+            color: #00ffff;
+            font-size: 0.9em;
+        }
+
+        /* Action Buttons */
+        #actionButtons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            pointer-events: all;
+        }
+
+        .action-btn {
+            display: block;
+            padding: 15px 30px;
+            margin: 10px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 3px solid;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px;
+        }
+
+        #lockBtn {
+            background: linear-gradient(145deg, #00ffff, #0099cc);
+            border-color: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        #lockBtn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #00ffff;
+        }
+
+        #lockBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #rebirthBtn {
+            background: linear-gradient(145deg, #ff00ff, #cc00cc);
+            border-color: #ff00ff;
+            color: white;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        #rebirthBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #ff00ff;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 40px;
+            border-radius: 15px;
+            border: 3px solid;
+            font-size: 1.5em;
+            font-weight: bold;
+            animation: slideDown 0.5s, slideUp 0.5s 2.5s;
+            z-index: 250;
+        }
+
+        .notification.success {
+            border-color: #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 30px #00ff00;
+        }
+
+        .notification.warning {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            box-shadow: 0 0 30px #ffaa00;
+        }
+
+        .notification.error {
+            border-color: #ff0000;
+            color: #ff0000;
+            box-shadow: 0 0 30px #ff0000;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; }
+            to { top: 100px; opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { top: 100px; opacity: 1; }
+            to { top: -100px; opacity: 0; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen">
+        <h1>🧠 STEAL A BRAINROT 🧠</h1>
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">LOGIN</div>
+                <div class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">SIGN UP</div>
+            </div>
+
+            <!-- Login Form -->
+            <div class="auth-form" id="loginForm">
+                <div id="loginMessage"></div>
+                <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+                <button class="auth-btn" onclick="handleLogin()">LOGIN</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="auth-form hidden" id="signupForm">
+                <div id="signupMessage"></div>
+                <input type="text" id="signupUsername" placeholder="Choose Username" autocomplete="off">
+                <input type="password" id="signupPassword" placeholder="Choose Password" autocomplete="new-password">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" autocomplete="new-password">
+                <button class="auth-btn" onclick="handleSignup()">CREATE ACCOUNT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Info Display (shown when logged in) -->
+    <div class="user-info-display hidden" id="userInfoDisplay">
+        <div class="user-greeting">Hey <span id="currentUsername"></span>!</div>
+        <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
+    </div>
+
+    <!-- Leave Server Button (shown only in online game) -->
+    <button class="leave-server-btn hidden" id="leaveServerBtn" onclick="leaveServer()">← LEAVE SERVER</button>
+
+    <!-- Player Leaderboard (shown only in online game) -->
+    <div class="player-leaderboard hidden" id="playerLeaderboard">
+        <div class="leaderboard-title">👥 PLAYERS</div>
+        <div id="leaderboardList"></div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <h1>🧠 STEAL A BRAINROT 🧠</h1>
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="showOnlineMode()">🌐 ONLINE MODE</button>
+            <button class="menu-btn secondary" onclick="showOfflineMode()">🤖 OFFLINE MODE</button>
+        </div>
+    </div>
+
+    <!-- Offline Mode Selection -->
+    <div id="offlineModeScreen">
+        <button class="back-btn" onclick="backToMainMenu()">← BACK</button>
+        <div class="screen-header">
+            <h2>🤖 SELECT BOT COUNT</h2>
+            <p style="color: #ff6666; margin-top: 10px;">⚠️ Progress is NOT saved in offline mode</p>
+        </div>
+        <div class="bot-selection">
+            <div class="bot-option" onclick="startOfflineGame(2)">
+                <h3>2 BOTS</h3>
+                <p>Easy Mode</p>
+            </div>
+            <div class="bot-option" onclick="startOfflineGame(3)">
+                <h3>3 BOTS</h3>
+                <p>Medium Mode</p>
+            </div>
+            <div class="bot-option" onclick="startOfflineGame(4)">
+                <h3>4 BOTS</h3>
+                <p>Hard Mode</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Mode Screen -->
+    <div id="onlineModeScreen">
+        <button class="back-btn" onclick="backToMainMenu()">← BACK</button>
+        <div class="screen-header">
+            <h2 style="color: #00ffff;">🌐 ONLINE MULTIPLAYER</h2>
+            <p style="color: #00ff00; margin-top: 10px;">✅ Your progress will be saved!</p>
+        </div>
+        <div class="online-container">
+            <!-- Server List -->
+            <div class="server-list-panel">
+                <div class="panel-title" style="color: #ff00ff;">📡 AVAILABLE SERVERS</div>
+                <div id="serverList">
+                    <div class="no-servers">
+                        No servers active!
+                        <span>Maybe you could make one!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Creator -->
+            <div class="server-creator-panel">
+                <div class="panel-title" style="color: #00ffff;">🛠️ CREATE SERVER</div>
+                <div class="creator-form">
+                    <div class="form-group">
+                        <label>Server Name:</label>
+                        <input type="text" id="serverNameInput" placeholder="Enter server name..." maxlength="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Privacy:</label>
+                        <div class="privacy-toggle">
+                            <div class="privacy-option selected" id="publicOption" onclick="selectPrivacy('public')">
+                                <div style="font-size: 2em;">🌍</div>
+                                <div>PUBLIC</div>
+                            </div>
+                            <div class="privacy-option" id="privateOption" onclick="selectPrivacy('private')">
+                                <div style="font-size: 2em;">🔒</div>
+                                <div>PRIVATE</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="passwordGroup">
+                        <label>Password:</label>
+                        <input type="password" id="serverPasswordInput" placeholder="Enter password...">
+                    </div>
+
+                    <button class="launch-btn" onclick="createServer()">🚀 LAUNCH!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="passwordModal">
+        <h3>🔒 Enter Server Password</h3>
+        <input type="password" id="passwordInput" placeholder="Enter password...">
+        <div class="error-message hidden" id="passwordError">Incorrect password! Try again.</div>
+        <div class="modal-buttons">
+            <button class="modal-btn confirm" onclick="submitPassword()">JOIN</button>
+            <button class="modal-btn cancel" onclick="closePasswordModal()">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- UI Overlay -->
+        <div id="uiOverlay">
+            <!-- Top Bar -->
+            <div id="topBar">
+                <div style="display: flex;">
+                    <div class="stat-box">
+                        <div class="stat-label">💰 Money</div>
+                        <div class="stat-value" id="moneyDisplay">$0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">🧠 Brainrots</div>
+                        <div class="stat-value" id="brainrotCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">💵 Income/sec</div>
+                        <div class="stat-value" id="incomeDisplay">$0</div>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <div class="stat-box">
+                        <div class="stat-label">⚡ Rebirth</div>
+                        <div class="stat-value" id="rebirthDisplay">x1</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">🔒 Lock Status</div>
+                        <div class="stat-value" id="lockStatus">Ready</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Hints -->
+            <div id="controlHints">
+                <div><strong>CONTROLS:</strong></div>
+                <div>WASD - Move</div>
+                <div>E - Buy/Steal</div>
+                <div>L - Lock Base</div>
+                <div>R - Rebirth</div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div id="actionButtons">
+                <button id="lockBtn" class="action-btn">🔒 LOCK BASE (L)</button>
+                <button id="rebirthBtn" class="action-btn">⚡ REBIRTH (R)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== AUTHENTICATION SYSTEM ====================
+        let currentLoggedInUser = null;
+
+        window.addEventListener('load', () => {
+            const lastUser = localStorage.getItem('lastLoggedInUser');
+            if (lastUser) {
+                const users = getAllUsers();
+                if (users[lastUser]) {
+                    currentLoggedInUser = lastUser;
+                    showMainMenu();
+                }
+            }
+        });
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('signupTab').classList.remove('active');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('signupForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginTab').classList.remove('active');
+                document.getElementById('signupTab').classList.add('active');
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('signupForm').classList.remove('hidden');
+            }
+            clearAuthMessages();
+        }
+
+        function clearAuthMessages() {
+            document.getElementById('loginMessage').innerHTML = '';
+            document.getElementById('signupMessage').innerHTML = '';
+        }
+
+        function showAuthMessage(elementId, message, isError = true) {
+            const msgDiv = document.getElementById(elementId);
+            msgDiv.innerHTML = `<div class="auth-message ${isError ? 'error' : 'success'}">${message}</div>`;
+        }
+
+        function getAllUsers() {
+            const usersJson = localStorage.getItem('brainrotUsers');
+            return usersJson ? JSON.parse(usersJson) : {};
+        }
+
+        function saveAllUsers(users) {
+            localStorage.setItem('brainrotUsers', JSON.stringify(users));
+        }
+
+        function handleSignup() {
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            if (!username || !password || !confirmPassword) {
+                showAuthMessage('signupMessage', 'Please fill in all fields!');
+                return;
+            }
+
+            if (username.length < 3) {
+                showAuthMessage('signupMessage', 'Username must be at least 3 characters!');
+                return;
+            }
+
+            if (password.length < 4) {
+                showAuthMessage('signupMessage', 'Password must be at least 4 characters!');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAuthMessage('signupMessage', 'Passwords do not match!');
+                return;
+            }
+
+            const users = getAllUsers();
+
+            if (users[username]) {
+                showAuthMessage('signupMessage', `Username "${username}" is already taken!`);
+                return;
+            }
+
+            users[username] = {
+                password: password,
+                createdAt: Date.now(),
+                gameData: {
+                    money: 500,
+                    rebirthMultiplier: 1,
+                    playerBase: {
+                        brainrots: [],
+                        locked: false,
+                        lockEndTime: 0
+                    }
+                }
+            };
+
+            saveAllUsers(users);
+            showAuthMessage('signupMessage', 'Account created! Logging you in...', false);
+
+            setTimeout(() => {
+                currentLoggedInUser = username;
+                localStorage.setItem('lastLoggedInUser', username);
+                showMainMenu();
+            }, 1000);
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAuthMessage('loginMessage', 'Please enter username and password!');
+                return;
+            }
+
+            const users = getAllUsers();
+
+            if (!users[username]) {
+                showAuthMessage('loginMessage', 'User not found!');
+                return;
+            }
+
+            if (users[username].password !== password) {
+                showAuthMessage('loginMessage', 'Incorrect password!');
+                return;
+            }
+
+            currentLoggedInUser = username;
+            localStorage.setItem('lastLoggedInUser', username);
+            showAuthMessage('loginMessage', 'Login successful!', false);
+
+            setTimeout(() => {
+                showMainMenu();
+            }, 500);
+        }
+
+        function showMainMenu() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('userInfoDisplay').classList.remove('hidden');
+            document.getElementById('currentUsername').textContent = currentLoggedInUser;
+        }
+
+        function handleLogout() {
+            if (!confirm('Are you sure you want to logout?')) {
+                return;
+            }
+
+            if (window.currentGame && window.currentGame.mode === 'online') {
+                window.currentGame.saveProgress();
+            }
+
+            currentLoggedInUser = null;
+            localStorage.removeItem('lastLoggedInUser');
+
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('onlineModeScreen').style.display = 'none';
+            document.getElementById('offlineModeScreen').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('userInfoDisplay').classList.add('hidden');
+            document.getElementById('leaveServerBtn').classList.add('hidden');
+            document.getElementById('playerLeaderboard').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'flex';
+
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            clearAuthMessages();
+        }
+
+        // ==================== LEAVE SERVER FUNCTION ====================
+        function leaveServer() {
+            if (!confirm('Are you sure you want to leave this server?')) {
+                return;
+            }
+
+            if (window.currentGame) {
+                // Save progress before leaving
+                window.currentGame.saveProgress();
+                
+                // Announce player left
+                showGlobalNotification(`${currentLoggedInUser} has left the server!`, 'warning');
+                
+                // Remove player from server
+                if (window.currentGame.server) {
+                    const servers = getServers();
+                    const serverIndex = servers.findIndex(s => s.id === window.currentGame.server.id);
+                    
+                    if (serverIndex > -1) {
+                        servers[serverIndex].players--;
+                        servers[serverIndex].playerList = servers[serverIndex].playerList.filter(p => p !== currentLoggedInUser);
+                        
+                        // If no players left, destroy server
+                        if (servers[serverIndex].players <= 0) {
+                            servers.splice(serverIndex, 1);
+                            showGlobalNotification('Server destroyed (no players remaining)', 'error');
+                        }
+                        
+                        localStorage.setItem('brainrotServers', JSON.stringify(servers));
+                    }
+                }
+                
+                // Stop game loop
+                if (window.currentGame.saveInterval) {
+                    clearInterval(window.currentGame.saveInterval);
+                }
+                
+                window.currentGame = null;
+            }
+
+            // Return to main menu
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('leaveServerBtn').classList.add('hidden');
+            document.getElementById('playerLeaderboard').classList.add('hidden');
+            document.getElementById('mainMenu').style.display = 'flex';
+        }
+
+        // ==================== GAME CONFIGURATION ====================
+        const CONFIG = {
+            CANVAS_WIDTH: 1600,
+            CANVAS_HEIGHT: 900,
+            PLAYER_SPEED: 3,
+            PLAYER_SIZE: 40,
+            BRAINROT_SIZE: 35,
+            BASE_SIZE: 150,
+            CONVEYOR_SPAWN_INTERVAL: 1000,
+            BRAINROT_SPEED: 1.5,
+            STEAL_DURATION: 2000,
+            STEAL_COOLDOWN: 10000,
+            LOCK_DURATION: 30000,
+            LOCK_COOLDOWN: 45000,
+            REBIRTH_LOCK_BONUS: 10000,
+            INCOME_INTERVAL: 1000,
+            AI_THINK_INTERVAL: 2000,
+        };
+
+        const RARITIES = {
+            COMMON: { 
+                name: 'Common', 
+                color: '#888888', 
+                glowColor: '#aaaaaa',
+                value: 100, 
+                income: 5, 
+                chance: 0.6 
+            },
+            RARE: { 
+                name: 'Rare', 
+                color: '#0088ff', 
+                glowColor: '#00aaff',
+                value: 300, 
+                income: 10, 
+                chance: 0.3 
+            },
+            MYTHIC: { 
+                name: 'Mythic', 
+                color: '#ff00ff', 
+                glowColor: '#ff66ff',
+                value: 800, 
+                income: 25, 
+                chance: 0.1 
+            }
+        };
+
+        // ==================== MENU SYSTEM ====================
+        let currentServer = null;
+        let selectedPrivacy = 'public';
+        let pendingServerToJoin = null;
+
+        function showOnlineMode() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('onlineModeScreen').style.display = 'block';
+            refreshServerList();
+            
+            if (!window.serverRefreshInterval) {
+                window.serverRefreshInterval = setInterval(refreshServerList, 3000);
+            }
+        }
+
+        function showOfflineMode() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('offlineModeScreen').style.display = 'block';
+        }
+
+        function backToMainMenu() {
+            document.getElementById('onlineModeScreen').style.display = 'none';
+            document.getElementById('offlineModeScreen').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+            
+            if (window.serverRefreshInterval) {
+                clearInterval(window.serverRefreshInterval);
+                window.serverRefreshInterval = null;
+            }
+        }
+
+        function selectPrivacy(type) {
+            selectedPrivacy = type;
+            document.getElementById('publicOption').classList.toggle('selected', type === 'public');
+            document.getElementById('privateOption').classList.toggle('selected', type === 'private');
+            document.getElementById('passwordGroup').classList.toggle('hidden', type === 'public');
+        }
+
+        function createServer() {
+            const serverName = document.getElementById('serverNameInput').value.trim();
+            const password = document.getElementById('serverPasswordInput').value;
+
+            if (!serverName) {
+                alert('Please enter a server name!');
+                return;
+            }
+
+            if (selectedPrivacy === 'private' && !password) {
+                alert('Please enter a password for private server!');
+                return;
+            }
+
+            const servers = getServers();
+            
+            // Check if server name already exists
+            if (servers.find(s => s.name.toLowerCase() === serverName.toLowerCase())) {
+                alert('A server with that name already exists! Please choose a different name.');
+                return;
+            }
+
+            const server = {
+                id: Date.now() + Math.random(),
+                name: serverName,
+                isPrivate: selectedPrivacy === 'private',
+                password: selectedPrivacy === 'private' ? password : null,
+                createdAt: Date.now(),
+                players: 1,
+                maxPlayers: 8,
+                creator: currentLoggedInUser,
+                playerList: [currentLoggedInUser]
+            };
+
+            servers.push(server);
+            localStorage.setItem('brainrotServers', JSON.stringify(servers));
+
+            currentServer = server;
+            startOnlineGame(server);
+        }
+
+        function getServers() {
+            const serversJson = localStorage.getItem('brainrotServers');
+            if (!serversJson) return [];
+            
+            const servers = JSON.parse(serversJson);
+            const oneHourAgo = Date.now() - (60 * 60 * 1000);
+            return servers.filter(s => s.createdAt > oneHourAgo);
+        }
+
+        function refreshServerList() {
+            const servers = getServers();
+            const serverListDiv = document.getElementById('serverList');
+
+            if (servers.length === 0) {
+                serverListDiv.innerHTML = `
+                    <div class="no-servers">
+                        No servers active!
+                        <span>Maybe you could make one!</span>
+                    </div>
+                `;
+                return;
+            }
+
+            serverListDiv.innerHTML = '';
+            servers.forEach(server => {
+                const serverItem = document.createElement('div');
+                serverItem.className = 'server-item';
+                serverItem.onclick = () => attemptJoinServer(server);
+                
+                serverItem.innerHTML = `
+                    <div class="server-info">
+                        <h3>${server.name}</h3>
+                        <p>Players: ${server.players}/${server.maxPlayers} • Host: ${server.creator}</p>
+                    </div>
+                    <div class="server-lock">${server.isPrivate ? '🔒' : '🌍'}</div>
+                `;
+                
+                serverListDiv.appendChild(serverItem);
+            });
+        }
+
+        function attemptJoinServer(server) {
+            if (server.isPrivate) {
+                pendingServerToJoin = server;
+                document.getElementById('passwordModal').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordError').classList.add('hidden');
+            } else {
+                joinServer(server);
+            }
+        }
+
+        function submitPassword() {
+            const enteredPassword = document.getElementById('passwordInput').value;
+            
+            if (enteredPassword === pendingServerToJoin.password) {
+                closePasswordModal();
+                joinServer(pendingServerToJoin);
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            pendingServerToJoin = null;
+        }
+
+        function joinServer(server) {
+            // Update server player count
+            const servers = getServers();
+            const serverIndex = servers.findIndex(s => s.id === server.id);
+            if (serverIndex > -1) {
+                servers[serverIndex].players++;
+                if (!servers[serverIndex].playerList) {
+                    servers[serverIndex].playerList = [];
+                }
+                servers[serverIndex].playerList.push(currentLoggedInUser);
+                localStorage.setItem('brainrotServers', JSON.stringify(servers));
+                server = servers[serverIndex];
+            }
+            
+            currentServer = server;
+            startOnlineGame(server);
+        }
+
+        function startOfflineGame(botCount) {
+            document.getElementById('offlineModeScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            new Game('offline', botCount);
+        }
+
+        function startOnlineGame(server) {
+            document.getElementById('onlineModeScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            document.getElementById('leaveServerBtn').classList.remove('hidden');
+            document.getElementById('playerLeaderboard').classList.remove('hidden');
+            
+            new Game('online', 0, server);
+        }
+
+        // ==================== GLOBAL NOTIFICATION ====================
+        function showGlobalNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        function randomRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function getRarity() {
+            const rand = Math.random();
+            if (rand < RARITIES.MYTHIC.chance) return RARITIES.MYTHIC;
+            if (rand < RARITIES.MYTHIC.chance + RARITIES.RARE.chance) return RARITIES.RARE;
+            return RARITIES.COMMON;
+        }
+
+        // ==================== BRAINROT CLASS ====================
+        class Brainrot {
+            constructor(x, y, rarity, onConveyor = true) {
+                this.x = x;
+                this.y = y;
+                this.rarity = rarity;
+                this.value = rarity.value;
+                this.income = rarity.income;
+                this.onConveyor = onConveyor;
+                this.owner = null;
+                this.size = CONFIG.BRAINROT_SIZE;
+                this.angle = 0;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.speed = CONFIG.BRAINROT_SPEED;
+            }
+
+            update(deltaTime) {
+                if (this.onConveyor) {
+                    this.x += this.speed;
+                    if (this.x > CONFIG.CANVAS_WIDTH + 50) {
+                        return false;
+                    }
+                }
+                
+                this.angle += 0.02;
+                this.pulsePhase += 0.05;
+                
+                return true;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                const pulse = 1 + Math.sin(this.pulsePhase) * 0.1;
+                
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size * pulse);
+                gradient.addColorStop(0, this.rarity.glowColor);
+                gradient.addColorStop(0.5, this.rarity.color);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size * pulse, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.font = `${this.size * 1.2}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('🧠', 0, 0);
+                
+                ctx.restore();
+                
+                if (this.onConveyor) {
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'center';
+                    
+                    ctx.fillStyle = '#ffff00';
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 3;
+                    ctx.strokeText(`$${this.value}`, this.x, this.y - this.size - 10);
+                    ctx.fillText(`$${this.value}`, this.x, this.y - this.size - 10);
+                    
+                    ctx.fillStyle = this.rarity.color;
+                    ctx.strokeText(this.rarity.name, this.x, this.y + this.size + 15);
+                    ctx.fillText(this.rarity.name, this.x, this.y + this.size + 15);
+                }
+            }
+
+            isNear(x, y, range = 60) {
+                return distance(this.x, this.y, x, y) < range;
+            }
+
+            toJSON() {
+                return {
+                    rarity: this.rarity.name,
+                    value: this.value,
+                    income: this.income
+                };
+            }
+        }
+
+        // ==================== BASE CLASS ====================
+        class Base {
+            constructor(x, y, index) {
+                this.x = x;
+                this.y = y;
+                this.index = index;
+                this.owner = null;
+                this.name = `Base ${index + 1}`;
+                this.size = CONFIG.BASE_SIZE;
+                this.brainrots = [];
+                this.locked = false;
+                this.lockEndTime = 0;
+                this.glowPhase = 0;
+            }
+
+            update(deltaTime) {
+                if (this.locked && Date.now() > this.lockEndTime) {
+                    this.locked = false;
+                }
+                
+                this.glowPhase += 0.05;
+            }
+
+            get color() {
+                if (this.owner === 'player') return '#00ff00';
+                if (this.owner && this.owner.startsWith('ai')) return '#ff0000';
+                return '#666666';
+            }
+
+            get displayName() {
+                if (this.owner === 'player') return 'YOUR BASE';
+                if (this.owner && this.owner.startsWith('ai')) return this.owner.toUpperCase();
+                return 'RESERVED';
+            }
+
+            draw(ctx) {
+                const glow = 10 + Math.sin(this.glowPhase) * 5;
+                
+                if (this.owner === null) {
+                    ctx.fillStyle = 'rgba(30, 30, 30, 0.3)';
+                } else {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                }
+                
+                ctx.fillRect(
+                    this.x - this.size / 2,
+                    this.y - this.size / 2,
+                    this.size,
+                    this.size
+                );
+                
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = this.owner === null ? 2 : 4;
+                ctx.shadowBlur = this.owner === null ? 3 : glow;
+                ctx.shadowColor = this.color;
+                
+                if (this.owner === null) {
+                    ctx.setLineDash([10, 5]);
+                }
+                
+                ctx.strokeRect(
+                    this.x - this.size / 2,
+                    this.y - this.size / 2,
+                    this.size,
+                    this.size
+                );
+                
+                ctx.setLineDash([]);
+                ctx.shadowBlur = 0;
+                
+                if (this.locked) {
+                    ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+                    ctx.fillRect(
+                        this.x - this.size / 2,
+                        this.y - this.size / 2,
+                        this.size,
+                        this.size
+                    );
+                    
+                    ctx.font = 'bold 30px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#00ffff';
+                    ctx.fillText('🔒', this.x, this.y - this.size / 2 - 25);
+                    
+                    const timeLeft = Math.max(0, this.lockEndTime - Date.now());
+                    const seconds = Math.ceil(timeLeft / 1000);
+                    ctx.font = 'bold 14px Arial';
+                    ctx.fillStyle = '#00ffff';
+                    ctx.fillText(`${seconds}s`, this.x, this.y - this.size / 2 - 45);
+                }
+                
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = this.owner === null ? '#666666' : '#ffffff';
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(this.displayName, this.x, this.y - this.size / 2 - 15);
+                ctx.fillText(this.displayName, this.x, this.y - this.size / 2 - 15);
+                
+                if (this.owner === null) {
+                    ctx.font = 'bold 10px Arial';
+                    ctx.fillStyle = '#555555';
+                    ctx.strokeText('Waiting for player...', this.x, this.y);
+                    ctx.fillText('Waiting for player...', this.x, this.y);
+                }
+                
+                if (this.owner !== null) {
+                    this.drawBrainrots(ctx);
+                }
+            }
+
+            drawBrainrots(ctx) {
+                const cols = 3;
+                const spacing = (this.size - 30) / cols;
+                
+                this.brainrots.forEach((brainrot, i) => {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    
+                    brainrot.x = this.x - this.size / 2 + 30 + col * spacing;
+                    brainrot.y = this.y - this.size / 2 + 30 + row * spacing;
+                    brainrot.draw(ctx);
+                });
+            }
+
+            addBrainrot(brainrot) {
+                brainrot.onConveyor = false;
+                brainrot.owner = this;
+                this.brainrots.push(brainrot);
+            }
+
+            removeBrainrot(brainrot) {
+                const index = this.brainrots.indexOf(brainrot);
+                if (index > -1) {
+                    this.brainrots.splice(index, 1);
+                }
+            }
+
+            getTotalIncome() {
+                return this.brainrots.reduce((sum, b) => sum + b.income, 0);
+            }
+
+            lock(duration) {
+                this.locked = true;
+                this.lockEndTime = Date.now() + duration;
+            }
+
+            contains(x, y) {
+                return x > this.x - this.size / 2 &&
+                       x < this.x + this.size / 2 &&
+                       y > this.y - this.size / 2 &&
+                       y < this.y + this.size / 2;
+            }
+
+            isNear(x, y, range = 80) {
+                return distance(this.x, this.y, x, y) < this.size / 2 + range;
+            }
+        }
+
+        // ==================== PLAYER CLASS ====================
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = CONFIG.PLAYER_SIZE;
+                this.speed = CONFIG.PLAYER_SPEED;
+                this.keys = {};
+                this.color = '#9966ff';
+                this.angle = 0;
+                this.isMoving = false;
+                this.canSteal = true;
+                this.stealCooldownEnd = 0;
+            }
+
+            update(deltaTime) {
+                this.isMoving = false;
+                let dx = 0;
+                let dy = 0;
+                
+                if (this.keys['w'] || this.keys['ArrowUp']) {
+                    dy -= this.speed;
+                    this.isMoving = true;
+                }
+                if (this.keys['s'] || this.keys['ArrowDown']) {
+                    dy += this.speed;
+                    this.isMoving = true;
+                }
+                if (this.keys['a'] || this.keys['ArrowLeft']) {
+                    dx -= this.speed;
+                    this.isMoving = true;
+                }
+                if (this.keys['d'] || this.keys['ArrowRight']) {
+                    dx += this.speed;
+                    this.isMoving = true;
+                }
+                
+                if (dx !== 0 && dy !== 0) {
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    dx = (dx / length) * this.speed;
+                    dy = (dy / length) * this.speed;
+                }
+                
+                this.x = Math.max(this.size, Math.min(CONFIG.CANVAS_WIDTH - this.size, this.x + dx));
+                this.y = Math.max(this.size, Math.min(CONFIG.CANVAS_HEIGHT - this.size, this.y + dy));
+                
+                if (this.isMoving) {
+                    this.angle = Math.atan2(dy, dx);
+                }
+                
+                if (!this.canSteal && Date.now() > this.stealCooldownEnd) {
+                    this.canSteal = true;
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, this.size / 2 + 5, this.size / 2, this.size / 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.rotate(this.angle);
+                
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(0.7, this.color);
+                gradient.addColorStop(1, 'rgba(153, 102, 255, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(this.size / 2, 0);
+                ctx.lineTo(this.size / 2 - 10, -5);
+                ctx.lineTo(this.size / 2 - 10, 5);
+                ctx.fill();
+                
+                ctx.restore();
+                
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.strokeText('YOU', this.x, this.y - this.size - 5);
+                ctx.fillText('YOU', this.x, this.y - this.size - 5);
+            }
+        }
+
+        // ==================== AI PLAYER CLASS ====================
+        class AIPlayer {
+            constructor(x, y, name, base) {
+                this.x = x;
+                this.y = y;
+                this.name = name;
+                this.base = base;
+                this.size = CONFIG.PLAYER_SIZE;
+                this.speed = CONFIG.PLAYER_SPEED * 0.8;
+                this.color = '#ff6666';
+                this.angle = 0;
+                this.target = null;
+                this.state = 'idle';
+                this.thinkTimer = 0;
+                this.stealingTarget = null;
+                this.money = 300;
+            }
+
+            update(deltaTime, game) {
+                this.thinkTimer -= deltaTime;
+                
+                if (this.thinkTimer <= 0) {
+                    this.think(game);
+                    this.thinkTimer = CONFIG.AI_THINK_INTERVAL;
+                }
+                
+                if (this.target) {
+                    const dx = this.target.x - this.x;
+                    const dy = this.target.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 5) {
+                        this.x += (dx / dist) * this.speed;
+                        this.y += (dy / dist) * this.speed;
+                        this.angle = Math.atan2(dy, dx);
+                    } else {
+                        if (this.state === 'buying') {
+                            this.attemptBuy(game);
+                        } else if (this.state === 'stealing') {
+                            this.attemptSteal(game);
+                        }
+                        this.target = null;
+                        this.state = 'idle';
+                    }
+                }
+            }
+
+            think(game) {
+                const rand = Math.random();
+                
+                if (rand < 0.5 && game.conveyorBrainrots.length > 0) {
+                    const affordable = game.conveyorBrainrots.filter(b => b.value <= this.money);
+                    if (affordable.length > 0) {
+                        const target = affordable[Math.floor(Math.random() * affordable.length)];
+                        this.target = { x: target.x, y: target.y };
+                        this.state = 'buying';
+                    }
+                } else if (rand < 0.7 && game.playerBase.brainrots.length > 0 && !game.playerBase.locked) {
+                    this.target = { x: game.playerBase.x, y: game.playerBase.y };
+                    this.state = 'stealing';
+                    this.stealingTarget = game.playerBase;
+                } else {
+                    const wanderRadius = 100;
+                    this.target = {
+                        x: this.base.x + randomRange(-wanderRadius, wanderRadius),
+                        y: this.base.y + randomRange(-wanderRadius, wanderRadius)
+                    };
+                    this.state = 'idle';
+                }
+            }
+
+            attemptBuy(game) {
+                const nearBrainrot = game.conveyorBrainrots.find(b => 
+                    distance(this.x, this.y, b.x, b.y) < 60
+                );
+                
+                if (nearBrainrot && nearBrainrot.value <= this.money) {
+                    this.money -= nearBrainrot.value;
+                    this.base.addBrainrot(nearBrainrot);
+                    game.conveyorBrainrots = game.conveyorBrainrots.filter(b => b !== nearBrainrot);
+                }
+            }
+
+            attemptSteal(game) {
+                if (!this.stealingTarget || this.stealingTarget.locked || this.stealingTarget.brainrots.length === 0) {
+                    this.stealingTarget = null;
+                    return;
+                }
+                
+                if (Math.random() < 0.3) {
+                    const stolenBrainrot = this.stealingTarget.brainrots[
+                        Math.floor(Math.random() * this.stealingTarget.brainrots.length)
+                    ];
+                    this.stealingTarget.removeBrainrot(stolenBrainrot);
+                    this.base.addBrainrot(stolenBrainrot);
+                    game.showNotification(`🚨 ${this.name} stole your Brainrot!`, 'error');
+                }
+                
+                this.stealingTarget = null;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(0, this.size / 2 + 5, this.size / 2, this.size / 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(this.size / 2, 0);
+                ctx.lineTo(this.size / 2 - 10, -5);
+                ctx.lineTo(this.size / 2 - 10, 5);
+                ctx.fill();
+                
+                ctx.restore();
+                
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(this.name, this.x, this.y - this.size - 5);
+                ctx.fillText(this.name, this.x, this.y - this.size - 5);
+            }
+        }
+
+        // ==================== GAME MANAGER ====================
+        class Game {
+            constructor(mode = 'offline', botCount = 2, server = null) {
+                this.mode = mode;
+                this.server = server;
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = CONFIG.CANVAS_WIDTH;
+                this.canvas.height = CONFIG.CANVAS_HEIGHT;
+                
+                if (mode === 'online') {
+                    this.loadProgress();
+                } else {
+                    this.money = 500;
+                    this.rebirthMultiplier = 1;
+                }
+                
+                this.lastTime = Date.now();
+                this.lastIncomeTime = Date.now();
+                this.lastConveyorSpawn = Date.now();
+                
+                this.conveyorY = CONFIG.CANVAS_HEIGHT / 2;
+                this.conveyorStartX = -50;
+                this.conveyorEndX = CONFIG.CANVAS_WIDTH + 50;
+                
+                this.bases = this.createBases();
+                
+                this.playerBase = this.bases[0];
+                this.playerBase.owner = 'player';
+                
+                if (mode === 'online' && this.savedBrainrots) {
+                    this.savedBrainrots.forEach(brData => {
+                        const rarity = RARITIES[brData.rarity.toUpperCase()];
+                        const br = new Brainrot(0, 0, rarity, false);
+                        this.playerBase.addBrainrot(br);
+                    });
+                }
+                
+                this.aiPlayers = [];
+                for (let i = 0; i < botCount; i++) {
+                    const aiBase = this.bases[i + 1];
+                    aiBase.owner = `ai_${i + 1}`;
+                    const aiPlayer = new AIPlayer(
+                        aiBase.x, 
+                        aiBase.y + 100, 
+                        `BOT ${i + 1}`, 
+                        aiBase
+                    );
+                    this.aiPlayers.push(aiPlayer);
+                }
+                
+                this.player = new Player(this.playerBase.x, this.playerBase.y - 100);
+                this.conveyorBrainrots = [];
+                
+                this.isStealingInProgress = false;
+                this.stealProgress = 0;
+                this.stealTarget = null;
+                this.stealStartTime = 0;
+                
+                this.lockCooldownEnd = 0;
+                this.canLock = true;
+                
+                window.currentGame = this;
+                
+                this.setupControls();
+                this.gameLoop();
+                
+                if (mode === 'online') {
+                    this.saveInterval = setInterval(() => this.saveProgress(), 5000);
+                    this.updateLeaderboard();
+                    this.leaderboardInterval = setInterval(() => this.updateLeaderboard(), 2000);
+                    
+                    // Announce player joined
+                    showGlobalNotification(`${currentLoggedInUser} joined the server!`, 'success');
+                }
+            }
+
+            loadProgress() {
+                const users = getAllUsers();
+                const userData = users[currentLoggedInUser];
+                
+                if (userData && userData.gameData) {
+                    this.money = userData.gameData.money || 500;
+                    this.rebirthMultiplier = userData.gameData.rebirthMultiplier || 1;
+                    this.savedBrainrots = userData.gameData.playerBase?.brainrots || [];
+                } else {
+                    this.money = 500;
+                    this.rebirthMultiplier = 1;
+                    this.savedBrainrots = [];
+                }
+            }
+
+            saveProgress() {
+                if (this.mode !== 'online') return;
+                
+                const users = getAllUsers();
+                if (!users[currentLoggedInUser]) return;
+                
+                users[currentLoggedInUser].gameData = {
+                    money: this.money,
+                    rebirthMultiplier: this.rebirthMultiplier,
+                    playerBase: {
+                        brainrots: this.playerBase.brainrots.map(br => br.toJSON()),
+                        locked: this.playerBase.locked,
+                        lockEndTime: this.playerBase.lockEndTime
+                    }
+                };
+                
+                saveAllUsers(users);
+            }
+
+            updateLeaderboard() {
+                if (this.mode !== 'online' || !this.server) return;
+                
+                const leaderboardDiv = document.getElementById('leaderboardList');
+                leaderboardDiv.innerHTML = '';
+                
+                // Create player entries
+                const players = [
+                    { name: currentLoggedInUser, money: this.money, isYou: true }
+                ];
+                
+                // Add other players (simulated for now)
+                if (this.server.playerList) {
+                    this.server.playerList.forEach(playerName => {
+                        if (playerName !== currentLoggedInUser) {
+                            players.push({
+                                name: playerName,
+                                money: Math.floor(Math.random() * 5000),
+                                isYou: false
+                            });
+                        }
+                    });
+                }
+                
+                // Sort by money
+                players.sort((a, b) => b.money - a.money);
+                
+                // Display
+                players.forEach(player => {
+                    const entry = document.createElement('div');
+                    entry.className = `player-entry ${player.isYou ? 'you' : ''}`;
+                    entry.innerHTML = `
+                        <div class="player-name">${player.name}${player.isYou ? ' (YOU)' : ''}</div>
+                        <div class="player-money">$${Math.floor(player.money)}</div>
+                    `;
+                    leaderboardDiv.appendChild(entry);
+                });
+            }
+
+            createBases() {
+                const bases = [];
+                const baseSpacing = (CONFIG.CANVAS_WIDTH - 200) / 4;
+                const topY = this.conveyorY - 200;
+                const bottomY = this.conveyorY + 200;
+                
+                for (let i = 0; i < 4; i++) {
+                    const x = 150 + i * baseSpacing;
+                    bases.push(new Base(x, topY, i));
+                }
+                
+                for (let i = 0; i < 4; i++) {
+                    const x = 150 + i * baseSpacing;
+                    bases.push(new Base(x, bottomY, i + 4));
+                }
+                
+                return bases;
+            }
+
+            setupControls() {
+                document.addEventListener('keydown', (e) => {
+                    this.player.keys[e.key.toLowerCase()] = true;
+                    
+                    if (e.key.toLowerCase() === 'e') {
+                        this.handleEKey();
+                    }
+                    if (e.key.toLowerCase() === 'l') {
+                        this.lockBase();
+                    }
+                    if (e.key.toLowerCase() === 'r') {
+                        this.rebirth();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.player.keys[e.key.toLowerCase()] = false;
+                });
+                
+                document.getElementById('lockBtn').addEventListener('click', () => this.lockBase());
+                document.getElementById('rebirthBtn').addEventListener('click', () => this.rebirth());
+            }
+
+            handleEKey() {
+                const nearConveyorBrainrot = this.conveyorBrainrots.find(b => 
+                    b.isNear(this.player.x, this.player.y)
+                );
+                
+                if (nearConveyorBrainrot) {
+                    this.buyBrainrot(nearConveyorBrainrot);
+                    return;
+                }
+                
+                const nearAIBase = this.bases.find(b => 
+                    b.owner && b.owner.startsWith('ai') && b.isNear(this.player.x, this.player.y)
+                );
+                
+                if (nearAIBase) {
+                    this.startSteal(nearAIBase);
+                    return;
+                }
+            }
+
+            buyBrainrot(brainrot) {
+                if (this.money >= brainrot.value) {
+                    this.money -= brainrot.value;
+                    this.playerBase.addBrainrot(brainrot);
+                    this.conveyorBrainrots = this.conveyorBrainrots.filter(b => b !== brainrot);
+                    this.showNotification(`Bought ${brainrot.rarity.name} Brainrot! +$${brainrot.income}/sec`, 'success');
+                    this.updateUI();
+                } else {
+                    this.showNotification('Not enough money!', 'error');
+                }
+            }
+
+            startSteal(targetBase) {
+                if (!this.player.canSteal) {
+                    this.showNotification('Steal on cooldown!', 'warning');
+                    return;
+                }
+                
+                if (targetBase.locked) {
+                    this.showNotification('🔒 Base is LOCKED!', 'error');
+                    return;
+                }
+                
+                if (targetBase.brainrots.length === 0) {
+                    this.showNotification('No Brainrots to steal!', 'warning');
+                    return;
+                }
+                
+                this.isStealingInProgress = true;
+                this.stealProgress = 0;
+                this.stealTarget = targetBase;
+                this.stealStartTime = Date.now();
+            }
+
+            updateSteal() {
+                if (!this.isStealingInProgress) return;
+                
+                const elapsed = Date.now() - this.stealStartTime;
+                this.stealProgress = Math.min(1, elapsed / CONFIG.STEAL_DURATION);
+                
+                if (!this.stealTarget.isNear(this.player.x, this.player.y)) {
+                    this.cancelSteal();
+                    return;
+                }
+                
+                if (this.stealProgress >= 1) {
+                    this.completeSteal();
+                }
+            }
+
+            completeSteal() {
+                if (this.stealTarget.brainrots.length > 0) {
+                    const stolenBrainrot = this.stealTarget.brainrots[
+                        Math.floor(Math.random() * this.stealTarget.brainrots.length)
+                    ];
+                    
+                    this.stealTarget.removeBrainrot(stolenBrainrot);
+                    this.playerBase.addBrainrot(stolenBrainrot);
+                    
+                    this.showNotification(`Stole ${stolenBrainrot.rarity.name} Brainrot! +$${stolenBrainrot.income}/sec`, 'success');
+                    
+                    this.player.canSteal = false;
+                    this.player.stealCooldownEnd = Date.now() + CONFIG.STEAL_COOLDOWN;
+                }
+                
+                this.isStealingInProgress = false;
+                this.stealTarget = null;
+                this.updateUI();
+            }
+
+            cancelSteal() {
+                this.isStealingInProgress = false;
+                this.stealTarget = null;
+                this.stealProgress = 0;
+            }
+
+            lockBase() {
+                if (!this.canLock) {
+                    const timeLeft = Math.ceil((this.lockCooldownEnd - Date.now()) / 1000);
+                    this.showNotification(`Lock cooldown: ${timeLeft}s`, 'warning');
+                    return;
+                }
+                
+                this.playerBase.lock(CONFIG.LOCK_DURATION);
+                this.canLock = false;
+                this.lockCooldownEnd = Date.now() + CONFIG.LOCK_COOLDOWN;
+                this.showNotification('Base LOCKED for 30 seconds!', 'success');
+                document.getElementById('lockBtn').disabled = true;
+            }
+
+            rebirth() {
+                const totalValue = this.playerBase.brainrots.reduce((sum, b) => sum + b.value, 0);
+                
+                if (totalValue < 2000) {
+                    this.showNotification('Need $2000 worth of Brainrots to rebirth!', 'warning');
+                    return;
+                }
+                
+                if (!confirm(`Rebirth will:\n• Reset your progress\n• Double your income (x${this.rebirthMultiplier * 2})\n• Grant 10 seconds of free lock time\n\nContinue?`)) {
+                    return;
+                }
+                
+                this.money = 500;
+                this.playerBase.brainrots = [];
+                this.aiPlayers.forEach(ai => ai.base.brainrots = []);
+                this.conveyorBrainrots = [];
+                this.rebirthMultiplier *= 2;
+                
+                this.playerBase.lock(CONFIG.REBIRTH_LOCK_BONUS);
+                
+                this.showNotification(`⚡ REBIRTH! Income x${this.rebirthMultiplier} + 10s Lock!`, 'success');
+                this.updateUI();
+            }
+
+            spawnConveyorBrainrot() {
+                const rarity = getRarity();
+                const x = this.conveyorStartX;
+                const y = this.conveyorY;
+                
+                const brainrot = new Brainrot(x, y, rarity, true);
+                this.conveyorBrainrots.push(brainrot);
+            }
+
+            generateIncome() {
+                const playerIncome = this.playerBase.getTotalIncome() * this.rebirthMultiplier;
+                
+                this.money += playerIncome / CONFIG.INCOME_INTERVAL * 1000;
+                
+                this.aiPlayers.forEach(ai => {
+                    ai.money += ai.base.getTotalIncome() / CONFIG.INCOME_INTERVAL * 1000;
+                });
+                
+                this.updateUI();
+            }
+
+            updateUI() {
+                document.getElementById('moneyDisplay').textContent = '$' + Math.floor(this.money);
+                document.getElementById('brainrotCount').textContent = this.playerBase.brainrots.length;
+                document.getElementById('incomeDisplay').textContent = 
+                    '$' + (this.playerBase.getTotalIncome() * this.rebirthMultiplier).toFixed(1);
+                document.getElementById('rebirthDisplay').textContent = 'x' + this.rebirthMultiplier;
+                
+                if (this.playerBase.locked) {
+                    const timeLeft = Math.ceil((this.playerBase.lockEndTime - Date.now()) / 1000);
+                    document.getElementById('lockStatus').textContent = `🔒 ${timeLeft}s`;
+                } else if (!this.canLock) {
+                    const cooldown = Math.ceil((this.lockCooldownEnd - Date.now()) / 1000);
+                    document.getElementById('lockStatus').textContent = `Cooldown: ${cooldown}s`;
+                    document.getElementById('lockBtn').disabled = true;
+                } else {
+                    document.getElementById('lockStatus').textContent = 'Ready';
+                    document.getElementById('lockBtn').disabled = false;
+                }
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            update() {
+                const currentTime = Date.now();
+                const deltaTime = currentTime - this.lastTime;
+                this.lastTime = currentTime;
+                
+                this.player.update(deltaTime);
+                this.aiPlayers.forEach(ai => ai.update(deltaTime, this));
+                this.bases.forEach(base => base.update(deltaTime));
+                
+                this.conveyorBrainrots = this.conveyorBrainrots.filter(b => b.update(deltaTime));
+                
+                if (currentTime - this.lastConveyorSpawn > CONFIG.CONVEYOR_SPAWN_INTERVAL) {
+                    this.spawnConveyorBrainrot();
+                    this.lastConveyorSpawn = currentTime;
+                }
+                
+                if (currentTime - this.lastIncomeTime > CONFIG.INCOME_INTERVAL) {
+                    this.generateIncome();
+                    this.lastIncomeTime = currentTime;
+                }
+                
+                this.updateSteal();
+                
+                if (!this.canLock && currentTime > this.lockCooldownEnd) {
+                    this.canLock = true;
+                }
+                
+                this.updateUI();
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#1a0033';
+                this.ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
+                
+                this.ctx.strokeStyle = 'rgba(255, 0, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+                for (let x = 0; x < CONFIG.CANVAS_WIDTH; x += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, CONFIG.CANVAS_HEIGHT);
+                    this.ctx.stroke();
+                }
+                for (let y = 0; y < CONFIG.CANVAS_HEIGHT; y += 50) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(CONFIG.CANVAS_WIDTH, y);
+                    this.ctx.stroke();
+                }
+                
+                this.drawConveyor();
+                
+                this.bases.forEach(base => base.draw(this.ctx));
+                this.conveyorBrainrots.forEach(b => b.draw(this.ctx));
+                
+                this.player.draw(this.ctx);
+                this.aiPlayers.forEach(ai => ai.draw(this.ctx));
+                
+                if (this.isStealingInProgress) {
+                    this.drawStealProgress();
+                }
+            }
+
+            drawConveyor() {
+                const ctx = this.ctx;
+                const beltHeight = 80;
+                
+                ctx.fillStyle = 'rgba(60, 60, 60, 0.7)';
+                ctx.fillRect(0, this.conveyorY - beltHeight / 2, CONFIG.CANVAS_WIDTH, beltHeight);
+                
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 5;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ffff00';
+                ctx.strokeRect(0, this.conveyorY - beltHeight / 2, CONFIG.CANVAS_WIDTH, beltHeight);
+                ctx.shadowBlur = 0;
+                
+                const lineSpacing = 40;
+                const offset = (Date.now() / 30) % lineSpacing;
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
+                ctx.lineWidth = 3;
+                for (let x = -offset; x < CONFIG.CANVAS_WIDTH; x += lineSpacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, this.conveyorY - beltHeight / 2 + 10);
+                    ctx.lineTo(x + 20, this.conveyorY + beltHeight / 2 - 10);
+                    ctx.stroke();
+                }
+                
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
+                ctx.font = 'bold 30px Arial';
+                for (let x = 100; x < CONFIG.CANVAS_WIDTH; x += 200) {
+                    ctx.fillText('→', x, this.conveyorY + 10);
+                }
+                
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffff00';
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 3;
+                ctx.strokeText('🛒 BRAINROT CONVEYOR 🛒', CONFIG.CANVAS_WIDTH / 2, this.conveyorY - beltHeight / 2 - 20);
+                ctx.fillText('🛒 BRAINROT CONVEYOR 🛒', CONFIG.CANVAS_WIDTH / 2, this.conveyorY - beltHeight / 2 - 20);
+            }
+
+            drawStealProgress() {
+                const ctx = this.ctx;
+                const barWidth = 200;
+                const barHeight = 30;
+                const x = this.player.x - barWidth / 2;
+                const y = this.player.y - 70;
+                
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, barWidth, barHeight);
+                
+                const progressColor = this.stealProgress < 0.5 ? '#ff0000' : '#00ff00';
+                ctx.fillStyle = progressColor;
+                ctx.fillRect(x + 2, y + 2, (barWidth - 4) * this.stealProgress, barHeight - 4);
+                
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('STEALING...', this.player.x, y - 5);
+            }
+
+            gameLoop() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+    </script>
+</body>
+</html>
